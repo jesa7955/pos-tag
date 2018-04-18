@@ -1,25 +1,21 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+import argparse
 from tagger import Tagger
 from processor import Processor
 from tqdm import tqdm
 
-def benchmark(tagger, test_data):
-    correct = 0
-    print("結果を検証中")
-    for index in tqdm(range(len(test_data))):
-        word, info = test_data[index]
-        guess = tagger.predict(word, info)
-        if guess == info['tag']:
-            correct += 1
-    print("正解率は{0}%です".format(100.0 * correct/len(test_data)))
-
 def main():
-    print("モデルをトレーニング中")
-    tagger = Tagger('data/wsj00-18.pos')
+    parser = argparse.ArgumentParser(description='Part-of-Speech Tagging.')
+    parser.add_argument('--read', '-r',  action='store_true',
+                       help='open this switch when you want to train a new model')
+    parser.add_argument('--suffix', '-s',  type=str, default='',
+                       help='specify suffix of files which will be used to store model')
+    args = parser.parse_args()
+    tagger = Tagger('data/wsj00-18.pos', args.read, args.suffix)
     test_data = Processor('data/wsj19-21.pos')
-    benchmark(tagger, test_data.raws)
+    tagger.benchmark(test_data)
 
 if __name__ == '__main__':
     main()
