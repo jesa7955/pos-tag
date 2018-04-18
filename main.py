@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: UTF-8 -*-
 
 from tagger import Tagger
 from processor import Processor
@@ -15,9 +16,9 @@ def benchmark(tagger, test_data):
     print("正解率は{0}%です".format(100.0 * correct/len(test_data)))
 
 def main():
-    test_data = Processor('data/wsj19-21.pos')
     print("モデルをトレーニング中")
     tagger = Tagger('data/wsj00-18.pos')
+    test_data = Processor('data/wsj19-21.pos')
     benchmark(tagger, test_data.raws)
 
 if __name__ == '__main__':

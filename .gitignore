@@ -1,1 +1,7 @@
 pre_processing.py
+__pycache__/
+learning.py
+test.py
+lists/
+ve-*
+*.pyc

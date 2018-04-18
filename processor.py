@@ -6,8 +6,7 @@ class Processor:
 
     def __init__(self, file_name):
         self.raws = []
-        self.tags = {}
-        self.words = {}
+        self.tags = set()
         self.unambiguous = {}
         self.weights = {}
         self.accumulators = {}
@@ -21,7 +20,6 @@ class Processor:
             tag = corpus[index + 1:]
             return (word, tag)
 
-        tag_index = 0
         data_set = {}
         with open(self.file_name) as raw_file:
             for line in raw_file:
@@ -46,10 +44,7 @@ class Processor:
                     else:
                         data_set[word] = {}
                         data_set[word][tag] = 1
-                    if tag not in self.tags:
-                        self.tags[tag] = tag_index
-                        tag_index += 1
+                    self.tags.add(tag)
         for index, (word, counter) in enumerate(data_set.items()):
-            if len(counter) == 1 and list(counter.values())[0] >= 20:
+            if len(counter) == 1 and list(counter.values())[0] >= 10:
                 self.unambiguous[word] = list(counter.keys())[0]
-            self.words[word] = index
