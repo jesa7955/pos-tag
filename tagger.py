@@ -8,11 +8,12 @@ import json
 
 
 class Tagger:
-    def __init__(self, file_name, times=1, random=True, prefix=''):
+    def __init__(self, file_name, times=1, random=True, save=True, prefix=''):
         self.context = {}
         self.__reset_context__()
         self.times = times
         self.random = random
+        self.save = save
         print(prefix + "のモデルを準備中")
         self.model = Processor(file_name, prefix)
         if self.model.model_exist():
@@ -20,6 +21,7 @@ class Tagger:
         else:
             print("モデルをトレーニング中")
             self.__perceptron__()
+            print("トレーニングが完了した")
 
     def __reset_context__(self):
         self.context['pp_tag'] = 'kashiramae'
@@ -33,7 +35,7 @@ class Tagger:
                 for tag, weight in weights.items():
                     scores[tag] += weight * 1.0
         if len(scores) == 0:
-            guess = random.sample(list(self.model.tags), 1)[0]
+            guess = random.sample(self.model.tags.keys(), 1)[0]
         else:
             guess = max(scores.items(), key=lambda x: x[1])[0]
         return guess
@@ -63,7 +65,8 @@ class Tagger:
         for feature, weights in self.model.weights.items():
             for tag in self.model.tags:
                 weights[tag] -= self.model.accumulators[feature][tag]
-        self.model.save_data()
+        if self.save:
+            self.model.save_data()
 
     def __construct_vector__(self, vector, feature_name):
         if feature_name not in vector:

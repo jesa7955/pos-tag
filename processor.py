@@ -14,7 +14,7 @@ class Processor:
     def __init__(self, file_name, prefix=''):
         def read_in(name):
             with gzip.open(self.__makename__(name), 'rb') as f:
-                return json.load(f)
+                return json.loads(f.read().decode())
 
         self.raws = []
         self.tags = {}
@@ -33,7 +33,7 @@ class Processor:
     def save_data(self):
         def save_to(name, obj):
             with gzip.open(self.__makename__(name), 'wb') as f:
-                f.write(json.dumps(obj))
+                f.write(json.dumps(obj).encode())
 
         save_to('tags', self.tags)
         save_to('unambiguous', self.unambiguous)
