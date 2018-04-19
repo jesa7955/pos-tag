@@ -45,7 +45,7 @@ class Tagger:
             if self.random:
                 word, info = random.choice(self.model.raws)
             else:
-                word, info = self.model.raws[t%length]
+                word, info = self.model.raws[t % length]
             features = self.__construct_feature__(word, info)
             for feature in features:
                 self.__construct_vector__(self.model.weights, feature)
@@ -56,8 +56,10 @@ class Tagger:
                 for feature in features:
                     self.model.weights[feature][correct] += 1.0
                     self.model.weights[feature][guess] -= 1.0
-                    self.model.accumulators[feature][correct] += t * 1.0 / float(T)
-                    self.model.accumulators[feature][guess] -= t * 1.0 / float(T)
+                    self.model.accumulators[feature][
+                        correct] += t * 1.0 / float(T)
+                    self.model.accumulators[feature][guess] -= t * 1.0 / float(
+                        T)
         for feature, weights in self.model.weights.items():
             for tag in self.model.tags:
                 weights[tag] -= self.model.accumulators[feature][tag]
@@ -94,10 +96,10 @@ class Tagger:
         add('n+1 word', info['n'][0])
         add('n-2 word', info['pp'][0])
         add('n+2 word', info['nn'][0])
-        if context: # When verifying the trained model, use context
+        if context:  # When verifying the trained model, use context
             add('n-1 tag', self.context['p_tag'])
             add('n-2 tag', self.context['pp_tag'])
-        else: # When traning a new model, use inforamtion from table
+        else:  # When traning a new model, use inforamtion from table
             add('n-1 tag', info['p'][1])
             add('n-2 tag', info['pp'][1])
         return features
@@ -110,20 +112,21 @@ class Tagger:
             guess = self.predict(word, info)
             if guess == info['tag']:
                 correct += 1
-        print("正解率は{0:.2f}%です".format(100.0 * correct/len(data.raws)))
+        print("正解率は{0:.2f}%です".format(100.0 * correct / len(data.raws)))
 
     def predict(self, word, info):
         if word in self.model.unambiguous:
             guess = self.model.unambiguous[word]
         elif self.__is_number__(word):
-            guess =  'CD'
+            guess = 'CD'
         else:
             features = self.__construct_feature__(word, info, True)
             guess = self.__predict__(features)
         # Maintain the context variable
-        if info['n'][0] == 'owari': # Reset the context values when taggin a new line
+        if info['n'][
+                0] == 'owari':  # Reset the context values when taggin a new line
             self.__reset_context__()
-        else: # Update context
+        else:  # Update context
             self.context['pp_tag'] = self.context['p_tag']
             self.context['p_tag'] = guess
         return guess

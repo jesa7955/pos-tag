@@ -4,6 +4,7 @@ import json
 import gzip
 import os.path
 
+
 class Processor:
     """
     This is used to read file in and make some process we will
@@ -39,10 +40,11 @@ class Processor:
         save_to('weights', self.weights)
 
     def model_exist(self):
-        return all([os.path.isfile(self.__makename__(save)) for save in self.saves])
+        return all(
+            [os.path.isfile(self.__makename__(save)) for save in self.saves])
 
     def __makename__(self, name):
-        return 'data/' + self.prefix+ '_' + name + '.gz'
+        return 'data/' + self.prefix + '_' + name + '.gz'
 
     def __process__(self):
         def seperate(corpus):
@@ -60,13 +62,15 @@ class Processor:
                 sentence.append(('owari', 'owari'))
                 sentence.append(('owariato', 'owariato'))
                 for index, (word, tag) in enumerate(sentence[2:-2]):
-                    self.raws.append([word, {
-                        'tag': tag,
-                        'pp': sentence[index],
-                        'p': sentence[index+1],
-                        'n': sentence[index+3],
-                        'nn': sentence[index+4]
-                    }])
+                    self.raws.append([
+                        word, {
+                            'tag': tag,
+                            'pp': sentence[index],
+                            'p': sentence[index + 1],
+                            'n': sentence[index + 3],
+                            'nn': sentence[index + 4]
+                        }
+                    ])
                     if word in data_set:
                         if tag not in data_set[word]:
                             data_set[word][tag] = 1
