@@ -1,4 +1,8 @@
+# -*- coding: UTF-8 -*-
+
 import json
+import gzip
+import os.path
 
 class Processor:
     """
@@ -6,9 +10,9 @@ class Processor:
     need in next procedure.
     """
 
-    def __init__(self, file_name, read=False, suffix=''):
+    def __init__(self, file_name, prefix=''):
         def read_in(name):
-            with open('data/'+self.suffix+'_'+name) as f:
+            with gzip.open(self.__makename__(name), 'rb') as f:
                 return json.load(f)
 
         self.raws = []
@@ -16,22 +20,29 @@ class Processor:
         self.unambiguous = {}
         self.weights = {}
         self.accumulators = {}
+        self.saves = set(['tags', 'unambiguous', 'weights'])
         self.file_name = file_name
-        self.suffix = suffix
+        self.prefix = prefix
         self.__process__()
-        if read:
-            self.tags = read_in('tags.json')
-            self.unambiguous = read_in('unambiguous.json')
-            self.weights = read_in('weights.json')
+        if self.model_exist():
+            self.tags = read_in('tags')
+            self.unambiguous = read_in('unambiguous')
+            self.weights = read_in('weights')
 
     def save_data(self):
         def save_to(name, obj):
-            with open('data/'+self.suffix+'_'+name, 'w') as f:
+            with gzip.open(self.__makename__(name), 'wb') as f:
                 f.write(json.dumps(obj))
 
-        save_to('tags.json', self.tags)
-        save_to('unambiguous.json', self.unambiguous)
-        save_to('weights.json', self.weights)
+        save_to('tags', self.tags)
+        save_to('unambiguous', self.unambiguous)
+        save_to('weights', self.weights)
+
+    def model_exist(self):
+        return all([os.path.isfile(self.__makename__(save)) for save in self.saves])
+
+    def __makename__(self, name):
+        return 'data/' + self.prefix+ '_' + name + '.gz'
 
     def __process__(self):
         def seperate(corpus):

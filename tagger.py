@@ -8,11 +8,14 @@ import json
 
 
 class Tagger:
-    def __init__(self, file_name, read=False, suffix=''):
+    def __init__(self, file_name, times=1, random=True, prefix=''):
         self.context = {}
         self.__reset_context__()
-        self.model = Processor(file_name, read, suffix)
-        if read:
+        self.times = times
+        self.random = random
+        print(prefix + "のモデルを準備中")
+        self.model = Processor(file_name, prefix)
+        if self.model.model_exist():
             print("モデルを読み込んだ")
         else:
             print("モデルをトレーニング中")
@@ -37,9 +40,12 @@ class Tagger:
 
     def __perceptron__(self):
         length = len(self.model.raws)
-        T = length * 5
+        T = length * self.times
         for t in tqdm(range(T)):
-            word, info = self.model.raws[t%length]
+            if self.random:
+                word, info = random.choice(self.model.raws)
+            else:
+                word, info = self.model.raws[t%length]
             features = self.__construct_feature__(word, info)
             for feature in features:
                 self.__construct_vector__(self.model.weights, feature)

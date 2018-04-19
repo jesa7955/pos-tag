@@ -5,4 +5,4 @@ test.py
 lists/
 ve-*
 *.pyc
-data/*json
+data/*gz
