@@ -33,7 +33,7 @@ class Tagger:
                 for tag, weight in weights.items():
                     scores[tag] += weight * 1.0
         if len(scores) == 0:
-            guess = random.sample(self.model.tags, 1)[0]
+            guess = random.sample(list(self.model.tags), 1)[0]
         else:
             guess = max(scores.items(), key=lambda x: x[1])[0]
         return guess
@@ -87,21 +87,30 @@ class Tagger:
         features = set()
         add('bias')
         add('n word', word)
-        add('n prefix2', word[:2])
-        add('n prefix3', word[:3])
-        add('n suffix', word[-3:])
-        add('n-1 suffix', info['p'][0][-3:])
-        add('n+1 suffix', info['n'][0][-3:])
         add('n-1 word', info['p'][0])
         add('n+1 word', info['n'][0])
         add('n-2 word', info['pp'][0])
         add('n+2 word', info['nn'][0])
+        add('n prefix2', word[:2])
+        #add('n prefix3', word[:3])
+        #add('n suffix2', word[-2:])
+        add('n suffix3', word[-3:])
+        add('n suffix4', word[-4:])
+        #add('n-1 suffix3', info['p'][0][-3:])
+        #add('n-1 suffix4', info['p'][0][-4:])
+        add('n+1 suffix3', info['n'][0][-3:])
+        #add('n+1 suffix4', info['n'][0][-3:])
+        add('n-1 word+n word', info['p'][0], word)
+        add('n word+n+1 word', word, info['n'][0])
+        add('n-1 word+n+1 word',info['p'][0], info['n'][0])
         if context:  # When verifying the trained model, use context
             add('n-1 tag', self.context['p_tag'])
             add('n-2 tag', self.context['pp_tag'])
+            add('n-1 tag+n word', self.context['p_tag'], word)
         else:  # When traning a new model, use inforamtion from table
             add('n-1 tag', info['p'][1])
             add('n-2 tag', info['pp'][1])
+            add('n-1 tag+n word', info['p'][1], word)
         return features
 
     def benchmark(self, data):

@@ -22,9 +22,11 @@ def main():
         action='store_true',
         help='without this switch, model will be trained by random sampled data'
     )
+    parser.add_argument(
+        '--file', '-f', type=str, default='', help='spectify test data file')
     args = parser.parse_args()
     tagger = Tagger('data/wsj00-18.pos', args.times, not args.all, args.prefix)
-    test_data = Processor('data/wsj19-21.pos')
+    test_data = Processor(args.file)
     tagger.benchmark(test_data)
 
 
