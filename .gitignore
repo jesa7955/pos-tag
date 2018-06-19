@@ -6,3 +6,4 @@ lists/
 ve-*
 *.pyc
 data/*gz
+data/*pos

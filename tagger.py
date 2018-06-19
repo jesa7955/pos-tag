@@ -21,7 +21,6 @@ class Tagger:
         else:
             print("モデルをトレーニング中")
             self.__perceptron__()
-            print("トレーニングが完了した")
 
     def __reset_context__(self):
         self.context['pp_tag'] = 'kashiramae'
@@ -58,12 +57,10 @@ class Tagger:
                 for feature in features:
                     self.model.weights[feature][correct] += 1.0
                     self.model.weights[feature][guess] -= 1.0
-                    self.model.accumulators[feature][
-                        correct] += t * 1.0 / float(T)
-                    self.model.accumulators[feature][guess] -= t * 1.0 / float(
-                        T)
+                    self.model.accumulators[feature][correct] += t * 1.0 / float(T)
+                    self.model.accumulators[feature][guess] -= t * 1.0 / float(T)
         for feature, weights in self.model.weights.items():
-            for tag in self.model.tags:
+            for tag in weights:
                 weights[tag] -= self.model.accumulators[feature][tag]
         if self.save:
             self.model.save_data()
@@ -95,14 +92,10 @@ class Tagger:
         add('n-2 word', info['pp'][0])
         add('n+2 word', info['nn'][0])
         add('n prefix2', word[:2])
-        #add('n prefix3', word[:3])
-        #add('n suffix2', word[-2:])
+        add('n prefix3', word[:3])
         add('n suffix3', word[-3:])
         add('n suffix4', word[-4:])
-        #add('n-1 suffix3', info['p'][0][-3:])
-        #add('n-1 suffix4', info['p'][0][-4:])
         add('n+1 suffix3', info['n'][0][-3:])
-        #add('n+1 suffix4', info['n'][0][-3:])
         add('n-1 word+n word', info['p'][0], word)
         add('n word+n+1 word', word, info['n'][0])
         add('n-1 word+n+1 word',info['p'][0], info['n'][0])
@@ -110,21 +103,26 @@ class Tagger:
             add('n-1 tag', self.context['p_tag'])
             add('n-2 tag', self.context['pp_tag'])
             add('n-1 tag+n word', self.context['p_tag'], word)
+            add('n-2 tag+n-1 tag', self.context['pp_tag'], self.context['p_tag'])
         else:  # When traning a new model, use inforamtion from table
             add('n-1 tag', info['p'][1])
             add('n-2 tag', info['pp'][1])
             add('n-1 tag+n word', info['p'][1], word)
+            add('n-2 tag+n-1 tag', info['pp'][1], info['p'][1])
         return features
 
     def benchmark(self, data):
         correct = 0
         print("結果を検証中")
+        errors = []
         for index in tqdm(range(len(data.raws))):
             word, info = data.raws[index]
             guess = self.predict(word, info)
             if guess == info['tag']:
                 correct += 1
-        print("正解率は{0:.2f}%です".format(100.0 * correct / len(data.raws)))
+            else:
+                errors.append((word, info))
+        print("正解率は{0:.3f}%です".format(100.0 * correct / len(data.raws)))
 
     def predict(self, word, info):
         if word in self.model.unambiguous:

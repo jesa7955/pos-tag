@@ -1,7 +1,8 @@
 ## How to run
 
-    $ git clone git@kiwi.logos.ic.i.u-tokyo.ac.jp:litong/pos-tagger-perceptron
+    $ git clone https://github.com/jesa7955/pos-tag.git
     $ python main.py
 
 ###
-    run python main.py -h to see help
+
+    run $ python main.py -h for help
